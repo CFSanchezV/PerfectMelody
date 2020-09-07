@@ -14,6 +14,7 @@ import com.christian.perfectmelodysprint2.AudioManager
 import com.christian.perfectmelodysprint2.R
 import kotlinx.android.synthetic.main.activity_preview.*
 
+
 class PreviewActivity : AppCompatActivity() {
     private val TAG = "PreviewActivity"
     private lateinit var audioManager: AudioManager
@@ -23,9 +24,18 @@ class PreviewActivity : AppCompatActivity() {
 
     var myFileId : String? = null
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preview)
+        //SuppotBar
+        setSupportActionBar(toolbar_list)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         audioManager = AudioManager(this)
 
         val id = intent.getStringExtra("fileName")
@@ -87,6 +97,10 @@ class PreviewActivity : AppCompatActivity() {
                 }
             }
         }).start()
+
+        btnCancelar.setOnClickListener {
+            onSupportNavigateUp()
+        }
     }
 
     @SuppressLint("HandlerLeak")

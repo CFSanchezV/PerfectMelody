@@ -38,14 +38,14 @@
 
     <TextView
         android:id="@+id/tvInstruc"
-        android:layout_width="269dp"
-        android:layout_height="57dp"
+        android:layout_width="265dp"
+        android:layout_height="86dp"
         android:layout_marginTop="32dp"
         android:layout_weight="1"
         android:ellipsize="none"
         android:maxLines="4"
         android:scrollHorizontally="false"
-        android:text="Presiona para grabar tu tarareo o canto"
+        android:text="Mantenga presionado el botón para grabar su tarareo o canto"
         android:textAlignment="center"
         android:textColor="@color/primary_text_color"
         android:textSize="24sp"

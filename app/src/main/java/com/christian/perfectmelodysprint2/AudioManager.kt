@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Environment
 import java.io.File
+import java.io.IOException
 
 class AudioManager(private val context: Context) {
 
@@ -31,7 +32,18 @@ class AudioManager(private val context: Context) {
     }
 
     fun filePathForId(id: String): String { //Once Kotlin has proper UInt type change this
-        return Environment.getExternalStorageDirectory().absolutePath +"/perfectmelodyV2/"+ id +".mp3"
+        val path = Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/"
+        val dir = File(path)
+        if(!dir.exists()){
+            try {
+                dir.mkdirs()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        return "$path$id.mp3"
+
+        //return Environment.getExternalStorageDirectory().absolutePath +"/perfectmelodyV2/"+ id +".mp3"
     }
 
     fun startRecording(id: String): Boolean {

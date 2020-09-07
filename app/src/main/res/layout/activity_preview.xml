@@ -6,23 +6,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.PreviewActivity"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_list"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/fab_background"
+        android:elevation="4dp"
+        android:layout_gravity="top"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <ImageView
+        android:id="@+id/imgViewMusic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
         android:src="@drawable/musicimg" />
 
     <SeekBar
         android:id="@+id/positionBar"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="30dp"
+        android:layout_gravity="center"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
         <TextView
             android:id="@+id/elapsedTimeLabel"
             android:layout_width="wrap_content"
@@ -42,15 +56,16 @@
         android:id="@+id/playBtn"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:background="@drawable/ic_play"
-        android:layout_marginTop="40dp"
-        android:onClick="playBtnClick"/>
+        android:background="@drawable/play"
+        android:layout_marginTop="15dp"
+        android:onClick="playBtnClick"
+        android:layout_gravity="center_horizontal"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="15dp"
         android:gravity="center">
         <ImageView
             android:layout_width="18dp"
@@ -69,4 +84,29 @@
             android:layout_height="26dp"
             android:src="@drawable/sound2"/>
     </LinearLayout>
+
+    <TableRow
+        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:layout_width="112dp"
+            android:layout_height="52dp"
+            android:text="Cancelar"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/mybutton_bg"/>
+
+        <Button
+            android:id="@+id/btnEnviar"
+            android:layout_width="112dp"
+            android:layout_height="52dp"
+            android:text="Enviar"
+            android:layout_marginStart="15dp"
+            android:background="@drawable/mybutton_bg"/>
+
+    </TableRow>
+
 </LinearLayout>

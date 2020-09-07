@@ -7,13 +7,16 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.ScaleAnimation
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.christian.perfectmelodysprint2.AudioManager
@@ -24,26 +27,28 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+    private var recHeldDown = false
 
     private val PERMISSIONS_REQ = 1
+    /*
     val permissions = arrayOf(
         android.Manifest.permission.RECORD_AUDIO,
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
+    */
 
     private lateinit var audioManager: AudioManager
 
     private var recEnabled = true
     private var noRecordingYet = true
 
-    //private var dir: File? = null
+    private var dir: File? = null
 
     private var output: String? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Thread.sleep(800)
-        //Splashscreen
+        //switch from Splashscreen
         super.setTheme(R.style.AppTheme)
 
         super.onCreate(savedInstanceState)
@@ -51,17 +56,14 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissions()
 
-        createDir()
-        //dir = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 && this.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
             ) {
 
                 val permissions = arrayOf(
-                    android.Manifest.permission.RECORD_AUDIO,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )
                 ActivityCompat.requestPermissions(this, permissions, PERMISSIONS_REQ)
 
@@ -71,6 +73,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        createDir()
+
         audioManager = AudioManager(this)
 
         recImgButton.tag = "audioFile"
@@ -78,12 +82,27 @@ class MainActivity : AppCompatActivity() {
 
         fabPreview.setOnClickListener {
             if (!noRecordingYet) {
-                noRecordingYet = true
+                //noRecordingYet = true
                 val intent1 = Intent(applicationContext, PreviewActivity::class.java)
                 intent1.putExtra("fileName", recImgButton.tag as String)
                 startActivity(intent1)
             }
         }
+
+        // Thread
+        Thread(Runnable {
+            while (true) {
+                try {
+                    Thread.sleep(2000)
+                    runOnUiThread {
+                        if (recHeldDown){
+                            scalingAnimation()
+                        }
+                    }
+                } catch (e: InterruptedException) {
+                }
+            }
+        }).start()
     }
 
     override fun onRequestPermissionsResult(
@@ -101,7 +120,8 @@ class MainActivity : AppCompatActivity() {
                     // Permission is granted. Continue the action or workflow in your app.
                 } else {
                     Log.d(TAG, "Permissions Failed")
-                    Toast.makeText(this,"You must allow permission record audio to your mobile device.",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"Debe otorgar permisos para grabado de audio para usar la aplicación.",Toast.LENGTH_SHORT).show();
+                    //App will trigger error
                 }
                 return
             }
@@ -140,21 +160,52 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createDir() {
-        try {
-            // create a File object for the parent directory
-            val recorderDirectory =
-                File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
-            // have the object build the directory structure, if needed.
-            recorderDirectory.mkdirs()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        dir = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
+
+        if(!dir!!.exists() || !dir!!.isDirectory) {
+            try {
+                // create a File object for the parent directory
+                val recorderDirectory = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
+                // have the object build the directory structure, if needed.
+                //dir!!.mkdirs()
+                recorderDirectory.mkdirs()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
-        /*
-        if (dir!!.exists() && dir!!.listFiles()?.size!! != 0) {
-            val theFileName = dir!!.listFiles()?.get(0)?.name
-            output = Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/" + theFileName + ".mp3"
-        }
-        */
+
+    }
+
+    private fun scalingAnimation(){
+        val upscale: Animation = ScaleAnimation(
+            1F,
+            1.1F,
+            1F,
+            1.1F,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        val downscale: Animation = ScaleAnimation(
+            1.1F,
+            1F,
+            1.1F,
+            1F,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        // 1 second duration
+        upscale.duration = 500
+        downscale.duration = 500
+        val animSet = AnimationSet(true)
+        animSet.isFillEnabled = true
+        animSet.addAnimation(upscale)
+        animSet.addAnimation(downscale)
+        // Launching animation set
+        recImgButton.startAnimation(animSet)
     }
 
     private val touchListener = View.OnTouchListener { v: View?, event: MotionEvent? ->
@@ -163,6 +214,7 @@ class MainActivity : AppCompatActivity() {
         val id = v?.tag as String
 
         if (event?.action == MotionEvent.ACTION_DOWN) {
+            recHeldDown = true
 
             if (recEnabled) { //recording
                 val isRecording = audioManager.startRecording(id)
@@ -170,7 +222,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Grabando...", Toast.LENGTH_SHORT).show()
                     v.background.colorFilter =
                         PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN)
-                    //switchVisibility(isRecording)
+                    switchVisibility(isRecording)
 
                     //PorterDuff is a class with list of blending + compositing modes, named after the authors of a paper on the subject
                 } else {
@@ -184,11 +236,12 @@ class MainActivity : AppCompatActivity() {
             return@OnTouchListener true
         }
         if (event?.action == MotionEvent.ACTION_UP) {
+            recHeldDown = false
 
             if (!recEnabled) {
                 audioManager.stopRecording()
                 noRecordingYet = false
-                fabPreview.visibility = View.VISIBLE
+                switchVisibility(recEnabled)
                 Toast.makeText(this, "Grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
             }
 
@@ -204,11 +257,11 @@ class MainActivity : AppCompatActivity() {
     private fun switchVisibility(recording: Boolean) {
         if (recording){
             fabPreview.visibility = View.INVISIBLE
-
+            tvInstruc.visibility = View.VISIBLE
         }
         else {
             fabPreview.visibility = View.VISIBLE
-
+            tvInstruc.visibility = View.INVISIBLE
         }
 
     }
