@@ -32,7 +32,8 @@ class AudioManager(private val context: Context) {
     }
 
     fun filePathForId(id: String): String { //Once Kotlin has proper UInt type change this
-        val path = Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/"
+        val path = context.getExternalFilesDir(null)?.absolutePath + "/perfectmelodyV2/"
+        //val path1 = Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/"
         val dir = File(path)
         if(!dir.exists()){
             try {

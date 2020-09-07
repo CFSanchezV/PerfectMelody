@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                     Thread.sleep(2000)
                     runOnUiThread {
                         if (recHeldDown){
-                            scalingAnimation()
+                            //scalingAnimation()
                         }
                     }
                 } catch (e: InterruptedException) {
@@ -160,15 +160,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createDir() {
-        dir = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
+        //dir = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
+        dir = File(applicationContext.getExternalFilesDir(null)?.absolutePath + "/perfectmelodyV2/")
 
         if(!dir!!.exists() || !dir!!.isDirectory) {
             try {
-                // create a File object for the parent directory
-                val recorderDirectory = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
-                // have the object build the directory structure, if needed.
-                //dir!!.mkdirs()
-                recorderDirectory.mkdirs()
+                // create a File object for the parent directory and have the object build the directory structure, if needed.
+                //val recorderDirectory = File(Environment.getExternalStorageDirectory().absolutePath + "/perfectmelodyV2/")
+                //recorderDirectory.mkdirs()
+                dir!!.mkdirs()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
