@@ -46,6 +46,9 @@ class MainActivity : AppCompatActivity() {
 
     private var output: String? = null
 
+    private var heldCounter = 0
+    private var counterDif = heldCounter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         Thread.sleep(800)
         //switch from Splashscreen
@@ -93,10 +96,12 @@ class MainActivity : AppCompatActivity() {
         Thread(Runnable {
             while (true) {
                 try {
-                    Thread.sleep(2000)
+                    //heldCounter+=1
+                    Thread.sleep(1500)
                     runOnUiThread {
                         if (recHeldDown){
-                            //scalingAnimation()
+                            scalingAnimation()
+                            heldCounter+=1
                         }
                     }
                 } catch (e: InterruptedException) {
@@ -213,11 +218,19 @@ class MainActivity : AppCompatActivity() {
 
         val id = v?.tag as String
 
+        if (event?.action == MotionEvent.ACTION_BUTTON_PRESS) {
+            recHeldDown = false
+
+            return@OnTouchListener true
+        }
+
         if (event?.action == MotionEvent.ACTION_DOWN) {
             recHeldDown = true
 
             if (recEnabled) { //recording
+
                 val isRecording = audioManager.startRecording(id)
+
                 if (isRecording) {
                     Toast.makeText(this, "Grabando...", Toast.LENGTH_SHORT).show()
                     v.background.colorFilter =
@@ -226,7 +239,7 @@ class MainActivity : AppCompatActivity() {
 
                     //PorterDuff is a class with list of blending + compositing modes, named after the authors of a paper on the subject
                 } else {
-                    Toast.makeText(this, "No se pudo grabar", Toast.LENGTH_LONG).show()
+                    //Toast.makeText(this, "La grabación es muy corta", Toast.LENGTH_SHORT).show()
                 }
 
             }
@@ -236,17 +249,24 @@ class MainActivity : AppCompatActivity() {
             return@OnTouchListener true
         }
         if (event?.action == MotionEvent.ACTION_UP) {
+            Thread.sleep(500)
             recHeldDown = false
 
             if (!recEnabled) {
                 audioManager.stopRecording()
                 noRecordingYet = false
                 switchVisibility(recEnabled)
-                Toast.makeText(this, "Grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
             }
 
             v.background.clearColorFilter()
             recEnabled = true
+
+            if ((heldCounter - counterDif) <= 1){
+                Toast.makeText(this, "La grabación es muy corta", Toast.LENGTH_SHORT).show()
+            }
+
+            counterDif = heldCounter
 
             return@OnTouchListener true
         }

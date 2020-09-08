@@ -40,7 +40,7 @@ class PreviewActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("fileName")
         Log.d(TAG, "filename is $id")
-        Toast.makeText(this, "audio in ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
 
         myFileId = id
 
@@ -51,7 +51,7 @@ class PreviewActivity : AppCompatActivity() {
         mp?.setVolume(0.5f, 0.5f)
         totalTime = mp!!.duration
 
-        playBtn.setBackgroundResource(R.drawable.stop)
+        //playBtn.setBackgroundResource(R.drawable.stop)
 
         // Volume Bar
         volumeBar?.setOnSeekBarChangeListener(
@@ -134,16 +134,16 @@ class PreviewActivity : AppCompatActivity() {
     }
 
     fun playBtnClick(v: View) {
+        if (!mp!!.isPlaying) {
+            // Start
+            mp!!.start()
+        }
+    }
 
+    fun stopBtnClick(v: View) {
         if (mp!!.isPlaying) {
             // Stop
             mp?.pause()
-            v.setBackgroundResource(R.drawable.play)
-
-        } else {
-            // Start
-            mp!!.start()
-            v.setBackgroundResource(R.drawable.stop)
         }
     }
 

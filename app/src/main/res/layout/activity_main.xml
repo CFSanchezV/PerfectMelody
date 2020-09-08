@@ -22,18 +22,19 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabPreview"
-        android:layout_width="66dp"
-        android:layout_height="72dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:maxImageSize="40dp"
+        app:fabCustomSize="60dp"
         android:layout_marginTop="27dp"
         android:adjustViewBounds="true"
+        android:scaleType="center"
         android:clickable="true"
         android:focusable="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/play"
+        android:src="@drawable/btnplayblack"
         app:backgroundTint="@color/fab_background"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@+id/recImgButton" />
 
     <TextView
