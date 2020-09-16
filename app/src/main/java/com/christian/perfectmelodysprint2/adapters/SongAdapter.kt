@@ -46,7 +46,7 @@ class SongPrototype(itemView : View) : RecyclerView.ViewHolder(itemView) {
         tvConfidence.text = song.confidence.toString()
 
         btnYoutube.setOnClickListener {
-            songClickListener.onItemClicked(song, it)
+            songClickListener.onItemClicked(song, btnYoutube)
         }
         btnSpotify.setOnClickListener {
             songClickListener.onItemClicked(song, it)

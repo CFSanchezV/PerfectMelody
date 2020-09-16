@@ -1,6 +1,7 @@
 package com.christian.perfectmelodysprint2.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
@@ -13,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.christian.perfectmelodysprint2.AudioManager
 import com.christian.perfectmelodysprint2.R
 import kotlinx.android.synthetic.main.activity_preview.*
-
 
 class PreviewActivity : AppCompatActivity() {
     private val TAG = "PreviewActivity"
@@ -101,6 +101,12 @@ class PreviewActivity : AppCompatActivity() {
         btnReintentar.setOnClickListener {
             Toast.makeText(this,"Envío de grabación cancelado",Toast.LENGTH_SHORT).show();
             onSupportNavigateUp()
+        }
+
+        btnEnviar.setOnClickListener {
+            //TODO RETROFIT SEND SONG
+            val intent = Intent(this, SongListActivity::class.java)
+            startActivity(intent)
         }
     }
 
