@@ -31,6 +31,7 @@
         android:scaleType="center"
         android:clickable="true"
         android:focusable="true"
+        android:visibility="invisible"
         android:src="@drawable/btnplayblack"
         app:backgroundTint="@color/fab_background"
         app:layout_constraintLeft_toLeftOf="parent"
