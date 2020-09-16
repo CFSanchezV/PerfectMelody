@@ -111,20 +111,23 @@
         android:layout_gravity="center_horizontal">
 
         <Button
-            android:id="@+id/btnCancelar"
+            android:id="@+id/btnReintentar"
             android:layout_width="112dp"
             android:layout_height="52dp"
-            android:text="Cancelar"
-            android:layout_marginEnd="15dp"
-            android:background="@drawable/mybutton_bg"/>
+            android:text="Intentar de nuevo"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/mybutton_bg" />
 
         <Button
             android:id="@+id/btnEnviar"
             android:layout_width="112dp"
             android:layout_height="52dp"
             android:text="Enviar"
-            android:layout_marginStart="15dp"
-            android:background="@drawable/mybutton_bg"/>
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="20dp"
+            android:background="@drawable/mybutton_bg" />
 
     </TableRow>
 
