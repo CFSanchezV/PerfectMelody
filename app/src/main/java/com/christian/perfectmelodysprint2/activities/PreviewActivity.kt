@@ -98,7 +98,7 @@ class PreviewActivity : AppCompatActivity() {
             }
         }).start()
 
-        btnCancelar.setOnClickListener {
+        btnReintentar.setOnClickListener {
             Toast.makeText(this,"Envío de grabación cancelado",Toast.LENGTH_SHORT).show();
             onSupportNavigateUp()
         }
