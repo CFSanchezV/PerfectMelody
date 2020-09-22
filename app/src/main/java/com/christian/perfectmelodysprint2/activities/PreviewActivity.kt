@@ -32,7 +32,7 @@ class PreviewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preview)
-        //SuppotBar
+        //SupportBar
         setSupportActionBar(toolbar_list)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
