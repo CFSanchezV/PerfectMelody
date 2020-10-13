@@ -3,6 +3,7 @@ package com.christian.perfectmelodysprint2.activities
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -15,8 +16,10 @@ import com.christian.perfectmelodysprint2.adapters.SongAdapter
 import com.christian.perfectmelodysprint2.models.ApiResponseDetails
 import com.christian.perfectmelodysprint2.models.Song
 import com.christian.perfectmelodysprint2.services.SongService
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_song_list.*
 import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,6 +37,31 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
 
     private lateinit var audioManager: AudioManager
 
+    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        when(item.itemId) {
+            R.id.menu_home -> {
+                val intent1 = Intent(this, MainActivity::class.java)
+                intent1.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivityIfNeeded(intent1, 0)
+            }
+            R.id.menu_preview -> {
+                val intent2 = Intent(this, PreviewActivity::class.java)
+                intent2.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivityIfNeeded(intent2, 0)
+            }
+            R.id.menu_favourite -> {
+                val intent3 = Intent(this, SaveActivity::class.java)
+                startActivity(intent3)
+                intent3.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivityIfNeeded(intent3, 0)
+            }
+            else -> {
+                Log.d(TAG, "Ya está en Resultados")
+            }
+        }
+        return@OnNavigationItemSelectedListener false
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
@@ -45,12 +73,15 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
         //SupportBar
         setSupportActionBar(toolbar_list)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        //audiomanager
         audioManager = AudioManager(this)
 
         //emptyUploadFile()  //Working OK
-        uploadFile()  //Needs Testing
+        uploadFileMultiPart()
         //Toast.makeText(this, "api key es: $ApiKey",Toast.LENGTH_SHORT).show(); //Test ApiKey value
+
+        btm_navView.selectedItemId = R.id.menu_search
+        btm_navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
     override fun onItemClicked(song: Song, btn: View) {
@@ -74,63 +105,62 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
     }
 
     //NETWORKING SECTION
-    private fun emptyUploadFile() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("http://18.191.176.24/api/ranking/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        val service = retrofit.create(SongService::class.java)
-
-        val emptyRequest = service.uploadSongEmpty(apiKey = ApiKey)
-
-        emptyRequest.enqueue(object : Callback<ApiResponseDetails> {
-            override fun onFailure(call: Call<ApiResponseDetails>, t: Throwable) {
-                //Log.d(TAG, "Error: $t")
-                Toast.makeText(this@SongListActivity, "Error: $t",Toast.LENGTH_SHORT).show();
-            }
-
-            override fun onResponse(call: Call<ApiResponseDetails>, response: Response<ApiResponseDetails>) {
-                //Load songList on recyclerView
-                if(response.isSuccessful) {
-                    songs = response.body()!!.songResults
-                    songAdapter = SongAdapter(songs, this@SongListActivity)
-                    rvSongList.adapter = songAdapter
-                    rvSongList.layoutManager = LinearLayoutManager(this@SongListActivity)
-                }
-                else {
-                    //Log.d(TAG, "No se envío el tarareo")
-                    Toast.makeText(this@SongListActivity, "No se envió el tarareo",Toast.LENGTH_SHORT).show();
-                }
-            }
-        })
-    }
-
-    private fun uploadFile() {
+    private fun uploadFileMultiPart(){
         val retrofit = Retrofit.Builder()
             .baseUrl("http://18.191.176.24/api/ranking/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         val postService = retrofit.create(SongService::class.java)
 
+        //file
         val filePath  = audioManager.filePathForId("audioFile")
-        val audioFile : File? = File(filePath)
-
-        /*
+        val audioFile = File(filePath)
         //build body
-        var body: MultipartBody.Part? = null
-        val inputStream = contentResolver.openInputStream(Uri.fromFile(audioFile))
-        //+ inputStream!!.readBytes() in create
+        val requestBody = RequestBody.create(MediaType.parse("audio/*"), audioFile)
+        val multipartBody = MultipartBody.Part.createFormData("humming", audioFile.name, requestBody)
+        //send
+        val myRequest = postService.uploadMultipartSong(ApiKey, multipartBody)
 
-        if (audioFile != null) {
-            body = MultipartBody.Part.createFormData("audio", audioFile.name, requestBody)
-            Toast.makeText(this@SongListActivity, "Name of file sent: ${audioFile.name}", Toast.LENGTH_SHORT).show();
-        }
-        */
-
-        val requestBody = RequestBody.create(MediaType.parse("audio/*"), audioFile!!)
-        val myRequest = postService.uploadSong(ApiKey, requestBody)
-
+        //handleResponse
         myRequest.enqueue(object : Callback<ApiResponseDetails> {
+            override fun onFailure(call: Call<ApiResponseDetails>, t: Throwable) {
+                //Log.d(TAG, "Error: $t")
+                loadingPanel.visibility = View.GONE
+                Toast.makeText(this@SongListActivity, "Error: $t",Toast.LENGTH_SHORT).show();
+            }
+
+            override fun onResponse(call: Call<ApiResponseDetails>, response: Response<ApiResponseDetails>) {
+                //Show text
+                Toast.makeText(this@SongListActivity, "Intentando enviar... ${audioFile.name}", Toast.LENGTH_SHORT).show();
+                //Load songList on recyclerView and hide the loading animation
+                if(response.isSuccessful) {
+                    loadingPanel.visibility = View.GONE
+
+                    songs = response.body()!!.songResults
+                    songAdapter = SongAdapter(songs, this@SongListActivity)
+                    rvSongList.adapter = songAdapter
+                    rvSongList.layoutManager = LinearLayoutManager(this@SongListActivity)
+                }
+                else {
+                    loadingPanel.visibility = View.GONE
+                    //Log.d(TAG, "No se recibió respuesta")
+                    Toast.makeText(this@SongListActivity, "No se recibió respuesta",Toast.LENGTH_SHORT).show();
+                }
+            }
+        })
+    }
+
+
+    private fun emptyUploadFile() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://18.191.176.24/api/ranking/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        val postService = retrofit.create(SongService::class.java)
+
+        val emptyRequest = postService.uploadSongEmpty(apiKey = ApiKey)
+
+        emptyRequest.enqueue(object : Callback<ApiResponseDetails> {
             override fun onFailure(call: Call<ApiResponseDetails>, t: Throwable) {
                 //Log.d(TAG, "Error: $t")
                 Toast.makeText(this@SongListActivity, "Error: $t",Toast.LENGTH_SHORT).show();

@@ -11,8 +11,7 @@ interface SongService {
     @Multipart
     @POST(".")
     fun uploadMultipartSong(@Header("X-Perfect-Melody-Token") apiKey: String,
-                   @Part audio: MultipartBody.Part,
-                   @Part name: String)
+                   @Part audio: MultipartBody.Part)
             : Call<ApiResponseDetails>
 
     //audio in body

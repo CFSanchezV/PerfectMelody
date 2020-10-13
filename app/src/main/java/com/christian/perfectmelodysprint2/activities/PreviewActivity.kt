@@ -25,6 +25,7 @@ class PreviewActivity : AppCompatActivity() {
     var myFileId : String? = null
 
     override fun onSupportNavigateUp(): Boolean {
+        stopBtnClick(stopBtn)
         finish()
         return true
     }
@@ -40,7 +41,7 @@ class PreviewActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("fileName")
         Log.d(TAG, "filename is $id")
-        Toast.makeText(this, "grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "grabacion en ${audioManager.filePathForId(id)}", Toast.LENGTH_SHORT).show()
 
         myFileId = id
 
@@ -94,6 +95,7 @@ class PreviewActivity : AppCompatActivity() {
                     handler.sendMessage(msg)
                     Thread.sleep(1000)
                 } catch (e: InterruptedException) {
+
                 }
             }
         }).start()
@@ -104,7 +106,8 @@ class PreviewActivity : AppCompatActivity() {
         }
 
         btnEnviar.setOnClickListener {
-            //TODO RETROFIT SEND SONG
+            stopBtnClick(stopBtn)
+
             val intent = Intent(this, SongListActivity::class.java)
             startActivity(intent)
         }

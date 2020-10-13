@@ -43,8 +43,14 @@ class SongPrototype(itemView : View) : RecyclerView.ViewHolder(itemView) {
     fun bind(song : Song, songClickListener: OnSongClickListener) {
         tvName.text = song.name
         tvArtist.text = song.artist
-        tvConfidence.text = song.confidence.toString() + "%"
+        tvConfidence.text = song.confidence.toString()
 
+        //CardView clicked
+        cvSong.setOnClickListener {
+            songClickListener.onItemClicked(song, it)
+        }
+
+        //buttons clicked
         btnYoutube.setOnClickListener {
             songClickListener.onItemClicked(song, it)
         }

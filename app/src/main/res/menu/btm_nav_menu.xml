@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_home"
+        android:enabled="true"
+        android:icon="@drawable/ic_microphone"
+        android:title="Grabar" />
+
+    <item
+        android:id="@+id/menu_preview"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_media_play"
+        android:title="Grabar" />
+
+    <item
+        android:id="@+id/menu_search"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="Resultados" />
+
+    <item android:id="@+id/menu_favourite"
+        android:enabled="true"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="Favoritos" />
+
+
+</menu>
