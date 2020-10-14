@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.christian.perfectmelodysprint2.AudioManager
@@ -13,6 +14,7 @@ import com.christian.perfectmelodysprint2.BuildConfig
 import com.christian.perfectmelodysprint2.R
 import com.christian.perfectmelodysprint2.adapters.OnSongClickListener
 import com.christian.perfectmelodysprint2.adapters.SongAdapter
+import com.christian.perfectmelodysprint2.database.SongDB
 import com.christian.perfectmelodysprint2.models.ApiResponseDetails
 import com.christian.perfectmelodysprint2.models.Song
 import com.christian.perfectmelodysprint2.services.SongService
@@ -27,12 +29,14 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 class SongListActivity : AppCompatActivity(), OnSongClickListener {
     private val TAG = "SongListActivity"
     private val ApiKey = BuildConfig.PERFECTMELODY_API_KEY
 
-    lateinit var songs : List<Song>
+    lateinit var songs : ArrayList<Song>
     lateinit var songAdapter: SongAdapter
 
     private lateinit var audioManager: AudioManager
@@ -76,15 +80,17 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
         //audiomanager
         audioManager = AudioManager(this)
 
-        //emptyUploadFile()  //Working OK
-        uploadFileMultiPart()
         //Toast.makeText(this, "api key es: $ApiKey",Toast.LENGTH_SHORT).show(); //Test ApiKey value
+        //emptyUploadFile()  //Working OK
+
+        //uploadFileMultiPart()
+        loadDummyData()
 
         btm_navView.selectedItemId = R.id.menu_search
         btm_navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
-    override fun onItemClicked(song: Song, btn: View) {
+    override fun onItemClicked(position: Int, song: Song, btn: View) {
         when(btn.id) {
             R.id.youtubeBtn -> {
                 val youtubeIntent = Intent(Intent.ACTION_VIEW)
@@ -101,7 +107,49 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
                 soundcloudIntent.data = Uri.parse("https://soundcloud.com/search?q="+ song.name)
                 startActivity(soundcloudIntent)
             }
+            R.id.cvSong -> {
+                saveFavourite(song)
+            }
         }
+    }
+
+    private fun saveFavourite(song: Song){
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.app_name)
+        builder.setMessage("Desea guardar la canción: ${song.name} ?")
+        builder.setIcon(android.R.drawable.ic_menu_save)
+        builder.setPositiveButton("Sí"
+        ) { dialog, id -> dialog.dismiss()
+            //YES
+            Log.d("Insercion de favorita", "Insertando favorita: ${song.name}");
+
+            SongDB.getInstance(this).getSongDAO().insertSong(song)
+            Toast.makeText(this, "Agregada a Favoritos", Toast.LENGTH_SHORT).show()
+        }
+        builder.setNegativeButton("No"
+        ) { dialog, id -> dialog.dismiss()
+            //NO
+            Toast.makeText(this, "No se agregó a Favoritos", Toast.LENGTH_SHORT).show()
+        }
+        val alert: AlertDialog = builder.create()
+        alert.show()
+    }
+
+    private fun loadDummyData(){
+        songs = ArrayList()
+        loadingPanel.visibility = View.GONE
+
+        songs.add(Song("marco", "antonio", 11.66f, 1))
+        songs.add(Song("marca", "antonio", 1.66f, 2))
+        songs.add(Song("marqy", "antonio", 6.46f, 3))
+        songs.add(Song("marcu", "antonio", 6.45f, 4))
+        songs.sortWith(Comparator { lhs, rhs ->
+            if (lhs.confidence > rhs.confidence) -1 else if (lhs.confidence < rhs.confidence) 1 else 0
+        })
+
+        songAdapter = SongAdapter(songs, this@SongListActivity)
+        rvSongList.adapter = songAdapter
+        rvSongList.layoutManager = LinearLayoutManager(this@SongListActivity)
     }
 
     //NETWORKING SECTION
@@ -136,7 +184,11 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
                 if(response.isSuccessful) {
                     loadingPanel.visibility = View.GONE
 
-                    songs = response.body()!!.songResults
+                    songs = response.body()!!.songResults as ArrayList<Song>
+                    //sorting in Kotlin
+                    songs.sortWith(Comparator { lhs, rhs ->
+                        if (lhs.confidence > rhs.confidence) -1 else if (lhs.confidence < rhs.confidence) 1 else 0
+                    })
                     songAdapter = SongAdapter(songs, this@SongListActivity)
                     rvSongList.adapter = songAdapter
                     rvSongList.layoutManager = LinearLayoutManager(this@SongListActivity)
@@ -169,7 +221,7 @@ class SongListActivity : AppCompatActivity(), OnSongClickListener {
             override fun onResponse(call: Call<ApiResponseDetails>, response: Response<ApiResponseDetails>) {
                 //Load songList on recyclerView
                 if(response.isSuccessful) {
-                    songs = response.body()!!.songResults
+                    songs = response.body()!!.songResults as ArrayList<Song>
                     songAdapter = SongAdapter(songs, this@SongListActivity)
                     rvSongList.adapter = songAdapter
                     rvSongList.layoutManager = LinearLayoutManager(this@SongListActivity)

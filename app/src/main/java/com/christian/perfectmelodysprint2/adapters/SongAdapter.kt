@@ -8,7 +8,7 @@ import com.christian.perfectmelodysprint2.R
 import com.christian.perfectmelodysprint2.models.Song
 import kotlinx.android.synthetic.main.prototype_song.view.*
 
-class SongAdapter(val songs: List<Song>, val songClickListener: OnSongClickListener) : RecyclerView.Adapter<SongPrototype>() {
+class SongAdapter(val songs: ArrayList<Song>, val songClickListener: OnSongClickListener) : RecyclerView.Adapter<SongPrototype>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongPrototype {
         val view = LayoutInflater.
@@ -24,7 +24,7 @@ class SongAdapter(val songs: List<Song>, val songClickListener: OnSongClickListe
 
     override fun onBindViewHolder(holder: SongPrototype, position: Int) {
         // Additional: Alternative UI window to select link
-        holder.bind(songs[position], songClickListener)
+        holder.bind(position, songs[position], songClickListener)
     }
 }
 
@@ -40,29 +40,29 @@ class SongPrototype(itemView : View) : RecyclerView.ViewHolder(itemView) {
     val btnSoundcloud = itemView.soundCloudBtn
 
 
-    fun bind(song : Song, songClickListener: OnSongClickListener) {
+    fun bind(position: Int, song : Song, songClickListener: OnSongClickListener) {
         tvName.text = song.name
         tvArtist.text = song.artist
         tvConfidence.text = song.confidence.toString()
 
         //CardView clicked
         cvSong.setOnClickListener {
-            songClickListener.onItemClicked(song, it)
+            songClickListener.onItemClicked(position, song, it)
         }
 
         //buttons clicked
         btnYoutube.setOnClickListener {
-            songClickListener.onItemClicked(song, it)
+            songClickListener.onItemClicked(position, song, it)
         }
         btnSpotify.setOnClickListener {
-            songClickListener.onItemClicked(song, it)
+            songClickListener.onItemClicked(position, song, it)
         }
         btnSoundcloud.setOnClickListener {
-            songClickListener.onItemClicked(song, it)
+            songClickListener.onItemClicked(position, song, it)
         }
     }
 }
 
 interface OnSongClickListener {
-    fun onItemClicked(song: Song, btn : View)
+    fun onItemClicked(position: Int, song: Song, btn : View)
 }

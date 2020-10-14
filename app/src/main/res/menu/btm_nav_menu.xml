@@ -11,7 +11,7 @@
         android:id="@+id/menu_preview"
         android:enabled="true"
         android:icon="@android:drawable/ic_media_play"
-        android:title="Grabar" />
+        android:title="Tarareo" />
 
     <item
         android:id="@+id/menu_search"

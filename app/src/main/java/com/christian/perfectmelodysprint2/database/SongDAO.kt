@@ -5,7 +5,7 @@ import com.christian.perfectmelodysprint2.models.Song
 
 @Dao
 interface SongDAO {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSong(vararg song: Song)
 
     @Query("SELECT * FROM songs")
